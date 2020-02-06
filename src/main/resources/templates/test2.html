@@ -1,0 +1,79 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/js/jquery-1.10.2.min.js"></script>
+    <!--    <script src="/echarts.min.js"></script>-->
+    <script src="/js/echarts.js"></script>
+    <script src="/js/dataTool.min.js"></script>
+    <style type="text/css">
+        html, body, #main {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0
+        }
+    </style>
+    <title>测试none模型</title>
+</head>
+<body>
+<div id="main" style=""></div>
+<script>
+    var myChart = echarts.init(document.getElementById('main'));
+    myChart.showLoading();
+    $.get('/les-miserables.gexf', function (xml) {
+        myChart.hideLoading();
+        var graph = echarts.dataTool.gexf.parse(xml);
+        var categories = [];
+        for (var i = 0; i < 9; i++) {
+            categories[i] = {
+                name: '类目' + i
+            };
+        }
+        graph.nodes.forEach(function (node) {
+            node.itemStyle = null;
+            node.symbolSize = 10;
+            node.value = node.symbolSize;
+            node.category = node.attributes.modularity_class;
+            // Use random x, y
+            node.x = node.y = null;
+            node.draggable = true;
+        });
+        option = {
+            title: {
+                text: 'Les Miserables',
+                subtext: 'Default layout',
+                top: 'bottom',
+                left: 'right'
+            },
+            tooltip: {},
+            legend: [{
+                // selectedMode: 'single',
+                data: categories.map(function (a) {
+                    return a.name;
+                })
+            }],
+            animation: false,
+            series: [
+                {
+                    name: 'Les Miserables',
+                    type: 'graph',
+                    layout: 'force',
+                    data: graph.nodes,
+                    links: graph.links,
+                    categories: categories,
+                    roam: true,
+                    label: {
+                        position: 'right'
+                    },
+                    force: {
+                        repulsion: 100
+                    }
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    }, 'xml');
+</script>
+</body>
+</html>
