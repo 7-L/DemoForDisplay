@@ -21,17 +21,17 @@ public class testController {
     }
 
 
-    @RequestMapping("/greet")
+    @RequestMapping("greet")
     public String greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name,
                            Model model) {
         model.addAttribute("name", name);
         return "greets";
     }
     @RequestMapping("11")
-    public String test11(HttpServletRequest request) {
+    public String test11(Model model) {
 
         String string = interfaceUtil("http://localhost:8080/block/sqlite", "");
-        request.setAttribute("str","123123");
+        model.addAttribute("str",string);
         return "11";
     }
     /**
@@ -86,9 +86,11 @@ public class testController {
             //构造一个字符流缓存
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String str = "";
+            String result = "";
             while ((str = br.readLine()) != null) {
                 str=new String(str.getBytes(),"UTF-8");//解决中文乱码问题
                 System.out.println(str);
+                result = str;
             }
             //关闭流
             is.close();
@@ -96,7 +98,7 @@ public class testController {
             //固定多线程的话，如果不disconnect，链接会增多，直到收发不出信息。写上disconnect后正常一些。
             conn.disconnect();
             System.out.println("完整结束");
-            return str;
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return "连接失败，错误信息如下" + e.toString();
