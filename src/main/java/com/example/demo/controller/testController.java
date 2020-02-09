@@ -1,10 +1,14 @@
 package com.example.demo.controller;
+
 import com.sun.deploy.net.HttpResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -13,10 +17,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
 @Controller
 public class testController {
     @RequestMapping("test")
-    public String test(){
+    public String test() {
         return "test";
     }
 
@@ -27,20 +32,38 @@ public class testController {
         model.addAttribute("name", name);
         return "greets";
     }
+
     @RequestMapping("11")
     public String test11(Model model) {
 
-        String string = interfaceUtil("http://localhost:8080/block/sqlite", "");
-        model.addAttribute("str",string);
+        String string = doPostUtil.interfaceUtil("http://localhost:8080/block/sqlite", "");
+        String result = "";
+        if (string != null) {
+            JSONObject json = new JSONObject(string);
+//            JSONObject jsonObj = json.getJSONObject("data");//获取json数组中的data项  Object为最外一层，故注释掉  
+            JSONArray paths = json.getJSONArray("data");
+
+            for (int i = 0; i < paths.length(); i++) {
+                int id = paths.getJSONObject(i).getInt("id");
+                String content = paths.getJSONObject(i).getString("content");
+                String messageId = paths.getJSONObject(i).getString("messageId");
+                System.out.println(id + "--" + content + "--" + messageId );
+                result += id + "--" + content + "--" + messageId;
+            }
+        }
+
+        model.addAttribute("str", result);
         return "11";
     }
+
     /**
      * 调用对方接口方法
+     *
      * @param path 对方或第三方提供的路径
      * @param data 向对方或第三方发送的数据，大多数情况下给对方发送JSON数据让对方解析
      */
 
-    public static String interfaceUtil(String path,String data) {
+    public static String interfaceUtil(String path, String data) {
         try {
             URL url = new URL(path);
             //打开和url之间的连接
@@ -88,7 +111,7 @@ public class testController {
             String str = "";
             String result = "";
             while ((str = br.readLine()) != null) {
-                str=new String(str.getBytes(),"UTF-8");//解决中文乱码问题
+                str = new String(str.getBytes(), "UTF-8");//解决中文乱码问题
                 System.out.println(str);
                 result = str;
             }
@@ -105,5 +128,6 @@ public class testController {
         }
     }
 }
+
 
 
